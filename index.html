@@ -1,102 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Roda Undian Arisan</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎯 Roda Undian Arisan</title>
   <style>
     body {
-      text-align: center;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom, #fff7e6, #ffe4b3);
+      background: linear-gradient(to bottom, #fff4e0, #ffdca8);
+      text-align: center;
+      padding: 20px;
       color: #5a3e00;
-      margin: 0;
-      padding: 30px 10px;
     }
-    h2 {
-      color: #a67c00;
-      font-size: 26px;
-      margin-bottom: 5px;
+    h1 {
+      margin-bottom: 10px;
     }
-    p {
-      font-size: 14px;
-      color: #8a6b02;
-    }
-    canvas {
-      margin-top: 20px;
+    #wheelCanvas {
+      margin: 20px auto;
       border-radius: 50%;
-      box-shadow: 0 0 15px #e6b800;
     }
-    #btn {
-      margin-top: 30px;
-      padding: 12px 28px;
-      font-size: 18px;
-      background: #ffcc33;
+    button {
+      background-color: #ffb84d;
       border: none;
-      border-radius: 10px;
-      color: #5a3e00;
-      font-weight: bold;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: background 0.3s;
+      margin: 10px;
     }
-    #btn:hover {
-      background: #ffd84d;
+    button:hover {
+      background-color: #ff9f1a;
+    }
+    input {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 10px;
+    }
+    li {
+      background: #fff;
+      padding: 6px;
+      border-radius: 5px;
+      margin: 4px auto;
+      width: 180px;
     }
   </style>
 </head>
 <body>
-  <h2>💫 UNDIAAN ARISAN 💫</h2>
-  <p><b>SIAPA BERUNTUNG HARI INI?</b></p>
-  <canvas id="wheel" width="400" height="400"></canvas><br>
-  <button id="btn">🎡 Putar Sekarang!</button>
+  <h1>🪄 Roda Undian Arisan</h1>
+  <p>Masukkan nama peserta dan klik "Tambah" untuk menambah ke roda!</p>
+  
+  <input type="text" id="nameInput" placeholder="Nama peserta..." />
+  <button onclick="addName()">Tambah</button>
+  <button onclick="resetNames()">Reset</button>
+  <ul id="nameList"></ul>
+
+  <canvas id="wheelCanvas" width="300" height="300"></canvas>
+  <div>
+    <button onclick="spinWheel()">🎯 Putar Sekarang</button>
+  </div>
 
   <script>
-    const names = ["Rina", "Santi", "Budi", "Eka", "Tina", "Dina"];
-    const canvas = document.getElementById("wheel");
+    let names = JSON.parse(localStorage.getItem('wheelNames')) || ["Tina", "Dina", "Rina", "Santi", "Jang"];
+    const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
-    const numSegments = names.length;
-    const arcSize = (2 * Math.PI) / numSegments;
+    let spinning = false;
+    let startAngle = 0;
 
     function drawWheel() {
-      for (let i = 0; i < numSegments; i++) {
+      const arc = Math.PI * 2 / names.length;
+      for (let i = 0; i < names.length; i++) {
+        const angle = startAngle + i * arc;
         ctx.beginPath();
-        ctx.fillStyle = i % 2 === 0 ? "#ffcc33" : "#ffe680";
-        ctx.moveTo(200, 200);
-        ctx.arc(200, 200, 200, i * arcSize, (i + 1) * arcSize);
-        ctx.lineTo(200, 200);
+        ctx.fillStyle = i % 2 ? "#ffd280" : "#ffb84d";
+        ctx.moveTo(150, 150);
+        ctx.arc(150, 150, 150, angle, angle + arc);
         ctx.fill();
-
         ctx.save();
-        ctx.translate(200, 200);
-        ctx.rotate(i * arcSize + arcSize / 2);
+        ctx.translate(150, 150);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = "right";
         ctx.fillStyle = "#5a3e00";
-        ctx.font = "bold 18px Poppins";
-        ctx.fillText(names[i], 100, 5);
+        ctx.font = "bold 16px Poppins";
+        ctx.fillText(names[i], 130, 5);
         ctx.restore();
       }
-
-      // tulisan tengah
-      ctx.beginPath();
-      ctx.arc(200, 200, 70, 0, 2 * Math.PI);
-      ctx.fillStyle = "#fff7cc";
-      ctx.fill();
-      ctx.strokeStyle = "#a67c00";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.fillStyle = "#a67c00";
-      ctx.font = "bold 13px Poppins";
-      ctx.textAlign = "center";
-      ctx.fillText("UNDIAAN", 200, 190);
-      ctx.fillText("ARISAN", 200, 210);
     }
-    drawWheel();
 
-    document.getElementById("btn").addEventListener("click", () => {
-      const segmentEka = names.indexOf("Eka");
-      const degreesPerSegment = 360 / numSegments;
-      const degrees = 360 * 5 + (degreesPerSegment * (numSegments - segmentEka)) - degreesPerSegment / 2;
-      canvas.style.transition = "transform 4s ease-out";
-      canvas.style.transform = `rotate(${degrees}deg)`;
-    });
+    function spinWheel() {
+      if (spinning) return;
+      spinning = true;
+      const randomSpin = Math.random() * 2000 + 3000;
+      const spinEnd = startAngle + randomSpin;
+      const duration = 4000;
+      const startTime = performance.now();
+
+      function animate(time) {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        startAngle = spinEnd * easeOut(progress);
+        ctx.clearRect(0, 0, 300, 300);
+        drawWheel();
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          spinning = false;
+          const winnerIndex = Math.floor(names.length - (startAngle / (2 * Math.PI)) % names.length) % names.length;
+          alert("🎉 Pemenangnya: " + names[winnerIndex] + " 🎉");
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    function easeOut(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function addName() {
+      const nameInput = document.getElementById("nameInput");
+      const name = nameInput.value.trim();
+      if (name && !names.includes(name)) {
+        names.push(name);
+        localStorage.setItem('wheelNames', JSON.stringify(names));
+        updateNameList();
+        nameInput.value = "";
+        drawWheel();
+      }
+    }
+
+    function resetNames() {
+      if (confirm("Hapus semua nama dari roda?")) {
+        names = [];
+        localStorage.removeItem('wheelNames');
+        updateNameList();
+        drawWheel();
+      }
+    }
+
+    function updateNameList() {
+      const list = document.getElementById("nameList");
+      list.innerHTML = "";
+      names.forEach(n => {
+        const li = document.createElement("li");
+        li.textContent = n;
+        list.appendChild(li);
+      });
+    }
+
+    updateNameList();
+    drawWheel();
   </script>
 </body>
 </html>
