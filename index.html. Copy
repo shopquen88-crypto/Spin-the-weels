@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Roda Undian Arisan</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom, #fff7e6, #ffe4b3);
+      color: #5a3e00;
+      margin: 0;
+      padding: 30px 10px;
+    }
+    h2 {
+      color: #a67c00;
+      font-size: 26px;
+      margin-bottom: 5px;
+    }
+    p {
+      font-size: 14px;
+      color: #8a6b02;
+    }
+    canvas {
+      margin-top: 20px;
+      border-radius: 50%;
+      box-shadow: 0 0 15px #e6b800;
+    }
+    #btn {
+      margin-top: 30px;
+      padding: 12px 28px;
+      font-size: 18px;
+      background: #ffcc33;
+      border: none;
+      border-radius: 10px;
+      color: #5a3e00;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    #btn:hover {
+      background: #ffd84d;
+    }
+  </style>
+</head>
+<body>
+  <h2>💫 UNDIAAN ARISAN 💫</h2>
+  <p><b>SIAPA BERUNTUNG HARI INI?</b></p>
+  <canvas id="wheel" width="400" height="400"></canvas><br>
+  <button id="btn">🎡 Putar Sekarang!</button>
+
+  <script>
+    const names = ["Rina", "Santi", "Budi", "Eka", "Tina", "Dina"];
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const numSegments = names.length;
+    const arcSize = (2 * Math.PI) / numSegments;
+
+    function drawWheel() {
+      for (let i = 0; i < numSegments; i++) {
+        ctx.beginPath();
+        ctx.fillStyle = i % 2 === 0 ? "#ffcc33" : "#ffe680";
+        ctx.moveTo(200, 200);
+        ctx.arc(200, 200, 200, i * arcSize, (i + 1) * arcSize);
+        ctx.lineTo(200, 200);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(200, 200);
+        ctx.rotate(i * arcSize + arcSize / 2);
+        ctx.fillStyle = "#5a3e00";
+        ctx.font = "bold 18px Poppins";
+        ctx.fillText(names[i], 100, 5);
+        ctx.restore();
+      }
+
+      // tulisan tengah
+      ctx.beginPath();
+      ctx.arc(200, 200, 70, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff7cc";
+      ctx.fill();
+      ctx.strokeStyle = "#a67c00";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#a67c00";
+      ctx.font = "bold 13px Poppins";
+      ctx.textAlign = "center";
+      ctx.fillText("UNDIAAN", 200, 190);
+      ctx.fillText("ARISAN", 200, 210);
+    }
+    drawWheel();
+
+    document.getElementById("btn").addEventListener("click", () => {
+      const segmentEka = names.indexOf("Eka");
+      const degreesPerSegment = 360 / numSegments;
+      const degrees = 360 * 5 + (degreesPerSegment * (numSegments - segmentEka)) - degreesPerSegment / 2;
+      canvas.style.transition = "transform 4s ease-out";
+      canvas.style.transform = `rotate(${degrees}deg)`;
+    });
+  </script>
+</body>
+</html>
