@@ -3,33 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎯 Roda Undian Arisan</title>
+  <title>🎯 Roda Undian Real</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom, #fff4e0, #ffdca8);
+      background: radial-gradient(circle at center, #fff7e6, #ffe0b3);
       text-align: center;
       padding: 20px;
-      color: #5a3e00;
+      color: #4a2c00;
     }
     h1 {
-      margin-bottom: 10px;
+      margin-bottom: 5px;
+      color: #ff7b00;
     }
     #wheelCanvas {
       margin: 20px auto;
+      display: block;
       border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
     }
     button {
-      background-color: #ffb84d;
+      background-color: #ff9f1a;
       border: none;
       padding: 10px 20px;
       font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
-      margin: 10px;
+      margin: 8px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px #d87f00;
     }
     button:hover {
-      background-color: #ff9f1a;
+      background-color: #ff7b00;
     }
     input {
       padding: 8px;
@@ -48,25 +54,39 @@
       border-radius: 5px;
       margin: 4px auto;
       width: 180px;
+      color: #333;
+    }
+    .pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid #ff2e00;
+      margin: 0 auto;
+      position: relative;
+      top: 10px;
+      filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.3));
     }
   </style>
 </head>
 <body>
-  <h1>🪄 Roda Undian Arisan</h1>
-  <p>Masukkan nama peserta dan klik "Tambah" untuk menambah ke roda!</p>
+  <h1>🎡 Roda Undian Arisan Real</h1>
+  <p>Masukkan nama peserta lalu klik <b>Tambah</b> untuk menambahkan ke roda!</p>
   
   <input type="text" id="nameInput" placeholder="Nama peserta..." />
   <button onclick="addName()">Tambah</button>
   <button onclick="resetNames()">Reset</button>
   <ul id="nameList"></ul>
 
-  <canvas id="wheelCanvas" width="300" height="300"></canvas>
+  <div class="pointer"></div>
+  <canvas id="wheelCanvas" width="320" height="320"></canvas>
   <div>
     <button onclick="spinWheel()">🎯 Putar Sekarang</button>
   </div>
 
   <script>
-    let names = JSON.parse(localStorage.getItem('wheelNames')) || ["Tina", "Dina", "Rina", "Santi", "Jang"];
+    let names = JSON.parse(localStorage.getItem('wheelNames')) || ["Eka", "Rina", "Putri", "Sari", "Dewi", "Nita", "Wulan", "Lia"];
+    const colors = ["#FF0000", "#FFA500", "#FFFF00", "#00FF00", "#00BFFF", "#0000FF", "#8A2BE2", "#FF69B4"];
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     let spinning = false;
@@ -77,42 +97,52 @@
       for (let i = 0; i < names.length; i++) {
         const angle = startAngle + i * arc;
         ctx.beginPath();
-        const colors = ["#FF9AA2", "#FFDAC1", "#E2F0CB", "#B5EAD7", "#C7CEEA", "#FFD6A5", "#B5EAD7", "#FFB7B2"];
-ctx.fillStyle = colors[i % colors.length];
-        ctx.moveTo(150, 150);
-        ctx.arc(150, 150, 150, angle, angle + arc);
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.moveTo(160, 160);
+        ctx.arc(160, 160, 160, angle, angle + arc);
         ctx.fill();
         ctx.save();
-        ctx.translate(150, 150);
+        ctx.translate(160, 160);
         ctx.rotate(angle + arc / 2);
         ctx.textAlign = "right";
-        ctx.fillStyle = "#5a3e00";
+        ctx.fillStyle = "white";
         ctx.font = "bold 16px Poppins";
-        ctx.fillText(names[i], 130, 5);
+        ctx.fillText(names[i], 140, 5);
         ctx.restore();
       }
+      // tengah
+      ctx.beginPath();
+      ctx.arc(160, 160, 30, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.fillStyle = "#ff7b00";
+      ctx.font = "bold 14px Poppins";
+      ctx.textAlign = "center";
+      ctx.fillText("SPIN", 160, 165);
     }
 
     function spinWheel() {
       if (spinning) return;
       spinning = true;
-      const randomSpin = Math.random() * 2000 + 3000;
+      const randomSpin = Math.random() * 2500 + 3000;
       const spinEnd = startAngle + randomSpin;
-      const duration = 4000;
+      const duration = 5000;
       const startTime = performance.now();
 
       function animate(time) {
         const elapsed = time - startTime;
         const progress = Math.min(elapsed / duration, 1);
         startAngle = spinEnd * easeOut(progress);
-        ctx.clearRect(0, 0, 300, 300);
+        ctx.clearRect(0, 0, 320, 320);
         drawWheel();
         if (progress < 1) {
           requestAnimationFrame(animate);
         } else {
           spinning = false;
-          const winnerIndex = Math.floor(names.length - (startAngle / (2 * Math.PI)) % names.length) % names.length;
-          alert("🎉 Pemenangnya: " + names[winnerIndex] + " 🎉");
+          const degrees = (startAngle * 180 / Math.PI) % 360;
+          const arc = 360 / names.length;
+          const index = Math.floor((360 - degrees + arc / 2) % 360 / arc);
+          alert("🎉 Pemenangnya: " + names[index] + " 🎉");
         }
       }
       requestAnimationFrame(animate);
