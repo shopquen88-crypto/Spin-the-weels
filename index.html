@@ -77,7 +77,8 @@
       for (let i = 0; i < names.length; i++) {
         const angle = startAngle + i * arc;
         ctx.beginPath();
-        ctx.fillStyle = i % 2 ? "#ffd280" : "#ffb84d";
+        const colors = ["#FF9AA2", "#FFDAC1", "#E2F0CB", "#B5EAD7", "#C7CEEA", "#FFD6A5", "#B5EAD7", "#FFB7B2"];
+ctx.fillStyle = colors[i % colors.length];
         ctx.moveTo(150, 150);
         ctx.arc(150, 150, 150, angle, angle + arc);
         ctx.fill();
